@@ -6,10 +6,12 @@ document.getElementById("searchForm").addEventListener("submit", async function 
   const resultsDiv = document.getElementById("results");
 
   resultsDiv.style.display = "none";
-  resultsDiv.innerHTML = "<p>Searching...</p>";
+  resultsDiv.innerHTML = "<p>🔍 Searching for streaming options...</p>";
+  resultsDiv.style.display = "block";
 
   try {
-    const response = await fetch(`/api/streaming?movie=${encodeURIComponent(movie)}&country=${country}`);
+    // ✅ Use your live Render API URL
+    const response = await fetch(`https://where-to-watch-api.onrender.com/api/streaming?movie=${encodeURIComponent(movie)}&country=${country}`);
     const data = await response.json();
 
     if (data.error) {
@@ -40,11 +42,8 @@ document.getElementById("searchForm").addEventListener("submit", async function 
 
       resultsDiv.innerHTML = html;
     }
-
-    resultsDiv.style.display = "block";
   } catch (err) {
-    resultsDiv.innerHTML = `<p style="color:red;">❌ Connection error. Is the server running?</p>`;
-    resultsDiv.style.display = "block";
+    resultsDiv.innerHTML = `<p style="color:red;">❌ Connection error. Is the API down?</p>`;
     console.error(err);
   }
 });
