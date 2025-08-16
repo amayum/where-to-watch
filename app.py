@@ -1,14 +1,13 @@
 # app.py
 import requests
-import json
+import os
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-import os
 
 app = Flask(__name__)
 CORS(app)
 
-
+# load API keys from environment
 API_KEY = os.getenv("TMDB_API_KEY")
 ACCESS_TOKEN = os.getenv("TMDB_ACCESS_TOKEN")
 
@@ -24,7 +23,7 @@ def streaming_info():
     if not movie_title:
         return jsonify({"error": "Missing required parameter: movie"}), 400
 
-    # searching for a movie
+    # search for movie
     search_url = "https://api.themoviedb.org/3/search/movie"
     search_params = {
         "api_key": API_KEY,
@@ -71,7 +70,12 @@ def streaming_info():
         return jsonify({"error": f"API request failed: {str(e)}"}), 500
     except Exception as e:
         return jsonify({"error": f"Error processing response: {str(e)}"}), 500
-    
+
+
+@app.route('/')
+def home():
+    return jsonify({"status": "API is running", "docs": "/api/streaming?movie=..." }), 200
+
 
 @app.route('/health')
 def health():
@@ -79,4 +83,5 @@ def health():
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port)
