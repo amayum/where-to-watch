@@ -71,6 +71,11 @@ def streaming_info():
         return jsonify({"error": f"API request failed: {str(e)}"}), 500
     except Exception as e:
         return jsonify({"error": f"Error processing response: {str(e)}"}), 500
+    
+
+@app.route('/health')
+def health():
+    return jsonify({"status": "alive"}), 200
 
 
 if __name__ == '__main__':
