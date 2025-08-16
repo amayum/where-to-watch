@@ -74,7 +74,11 @@ def streaming_info():
 
 @app.route('/')
 def home():
-    return jsonify({"status": "API is running", "docs": "/api/streaming?movie=..." }), 200
+    return {
+        "status": "Where to Watch API",
+        "message": "Use /api/streaming?movie=Joker&country=US",
+        "health": "/health"
+    }, 200
 
 
 @app.route('/health')
