@@ -54,13 +54,24 @@ def streaming_info():
 
         country_providers = providers_data.get("results", {}).get(country_code, {})
 
+        # helper to format providers with logo and link
+        def format_providers(providers):
+            return [
+                {
+                    "name": p["provider_name"],
+                    "logo": f"https://image.tmdb.org/t/p/w45{p['logo_path']}" if p.get("logo_path") else None,
+                    "link": p.get("link")
+                }
+                for p in providers
+            ]
+
         result = {
             "movie_title": actual_title,
             "country": country_code,
             "streaming_platforms": {
-                "flatrate": [p["provider_name"] for p in country_providers.get("flatrate", [])],
-                "rent": [p["provider_name"] for p in country_providers.get("rent", [])],
-                "buy": [p["provider_name"] for p in country_providers.get("buy", [])]
+                "flatrate": format_providers(country_providers.get("flatrate", [])),
+                "rent": format_providers(country_providers.get("rent", [])),
+                "buy": format_providers(country_providers.get("buy", []))
             }
         }
 

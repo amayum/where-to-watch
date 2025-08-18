@@ -10,7 +10,6 @@ document.getElementById("searchForm").addEventListener("submit", async function 
   resultsDiv.style.display = "block";
 
   try {
-    // ✅ Use your live Render API URL
     const response = await fetch(`https://where-to-watch-api.onrender.com/api/streaming?movie=${encodeURIComponent(movie)}&country=${country}`);
     const data = await response.json();
 
@@ -21,20 +20,33 @@ document.getElementById("searchForm").addEventListener("submit", async function 
         <h3>Streaming info for: <strong>"${data.movie_title}"</strong> in ${data.country}</h3>
       `;
 
-      if (data.streaming_platforms.flatrate.length > 0) {
-        html += `<div class="platform-list"><strong>Available to stream:</strong>
-                 <ul>${data.streaming_platforms.flatrate.map(p => `<li>📺 ${p}</li>`).join('')}</ul></div>`;
+    
+      function createPlatformList(providers, label, icon) {
+        if (!providers || providers.length === 0) return '';
+
+        return `
+          <div class="platform-list">
+            <strong>${label}:</strong>
+            <ul>
+              ${providers.map(p => {
+                const logo = p.logo ? `<img src="${p.logo}" alt="${p.name}" style="height:20px;vertical-align:middle;margin-right:6px;border-radius:4px;">` : '';
+                const link = p.link || `https://www.google.com/search?q=${encodeURIComponent(data.movie_title)}+on+${encodeURIComponent(p.name)}+${country}`;
+                return `
+                  <li>
+                    <a href="${link}" target="_blank" rel="noopener" title="Open ${p.name}" style="text-decoration:none;color:#3498db;">
+                      ${icon} ${logo}<span>${p.name}</span>
+                    </a>
+                  </li>
+                `;
+              }).join('')}
+            </ul>
+          </div>
+        `;
       }
 
-      if (data.streaming_platforms.rent.length > 0) {
-        html += `<div class="platform-list"><strong>Available to rent:</strong>
-                 <ul>${data.streaming_platforms.rent.map(p => `<li>💰 Rent on ${p}</li>`).join('')}</ul></div>`;
-      }
-
-      if (data.streaming_platforms.buy.length > 0) {
-        html += `<div class="platform-list"><strong>Available to buy:</strong>
-                 <ul>${data.streaming_platforms.buy.map(p => `<li>💳 Buy on ${p}</li>`).join('')}</ul></div>`;
-      }
+      html += createPlatformList(data.streaming_platforms.flatrate, "Available to stream", "📺");
+      html += createPlatformList(data.streaming_platforms.rent, "Available to rent", "💰");
+      html += createPlatformList(data.streaming_platforms.buy, "Available to buy", "💳");
 
       if (Object.values(data.streaming_platforms).every(arr => arr.length === 0)) {
         html += `<p>No streaming options found.</p>`;
