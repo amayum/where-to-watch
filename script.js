@@ -10,7 +10,7 @@ document.getElementById("searchForm").addEventListener("submit", async function 
   resultsDiv.style.display = "block";
 
   try {
-    const response = await fetch(`https://where-to-watch-api.onrender.com/api/streaming?movie=${encodeURIComponent(movie)}&country=${country}`);
+    const response = await fetch(`http://localhost:5000/api/streaming?movie=${encodeURIComponent(movie)}&country=${country}`);;
     const data = await response.json();
 
     if (data.error) {

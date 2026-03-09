@@ -3,6 +3,8 @@ import requests
 import os
 from flask import Flask, request, jsonify
 from flask_cors import CORS
+from dotenv import load_dotenv
+load_dotenv()
 
 app = Flask(__name__)
 CORS(app)
@@ -22,8 +24,9 @@ def streaming_info():
 
     if not movie_title:
         return jsonify({"error": "Missing required parameter: movie"}), 400
+    
 
-    # search for movie
+    # defining what to search for movie
     search_url = "https://api.themoviedb.org/3/search/movie"
     search_params = {
         "api_key": API_KEY,
@@ -31,6 +34,7 @@ def streaming_info():
     }
 
     try:
+        # searches for movie
         search_response = requests.get(search_url, params=search_params)
         search_response.raise_for_status()
         search_data = search_response.json()
