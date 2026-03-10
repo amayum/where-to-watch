@@ -35,6 +35,13 @@ form {
   flex-wrap: wrap;
   justify-content: center;
   margin-bottom: 20px;
+  overflow: visible;
+}
+
+form > div {
+  position: relative;
+  flex-grow: 1;
+  min-width: 200px;
 }
 
 input, select, button {
@@ -46,7 +53,7 @@ input, select, button {
 
 input {
   flex-grow: 1;
-  min-width: 200px;
+  min-width: 300px;
 }
 
 button {

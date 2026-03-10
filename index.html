@@ -12,8 +12,11 @@
     <p>Find where a movie is streaming in your country.</p>
 
     <form id="searchForm">
-      <input type="text" id="movieInput" placeholder="Enter movie title" required />
-      
+      <div style="position:relative;">
+        <input type="text" id="movieInput" placeholder="Enter movie title" required />
+        <div id="suggestions" style="position:absolute;top:100%;left:0;right:0;background:white;border:1px solid #ccc;border-radius:8px;z-index:999;display:none;box-shadow:0 4px 12px rgba(0,0,0,0.1);"></div>
+      </div>
+
       <select id="countrySelect">
         <option value="US">United States</option>
         <option value="CA">Canada</option>
