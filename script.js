@@ -73,7 +73,7 @@ function showResults(data, country) {
   resultsDiv.innerHTML = html;
 
   // fetch similar movies and display them below the results
-  fetch(`http://localhost:5000/api/recommendations?id=${data.id}`)
+  fetch(`https://where-to-watch-api.onrender.com/api/recommendations?id=${data.id}`)
     .then(r => r.json())
     .then(recData => {
       const recsDiv = document.getElementById("recommendations");
@@ -109,7 +109,7 @@ async function fetchById(id, title, country) {
   resultsDiv.style.display = "block";
   resultsDiv.innerHTML = `<p>🔍 Loading...</p>`;
   try {
-    const response = await fetch(`http://localhost:5000/api/streaming/by-id?id=${id}&title=${encodeURIComponent(title)}&country=${country}`);
+    const response = await fetch(`https://where-to-watch-api.onrender.com/api/streaming/by-id?id=${id}&title=${encodeURIComponent(title)}&country=${country}`);
     const data = await response.json();
     if (data.error) {
       resultsDiv.innerHTML = `<p style="color:red;">❌ ${data.error}</p>`;
@@ -135,7 +135,7 @@ movieInput.addEventListener("input", function () {
 
   debounceTimer = setTimeout(async () => {
     try {
-      const response = await fetch(`http://localhost:5000/api/search?movie=${encodeURIComponent(movie)}`);
+      const response = await fetch(`https://where-to-watch-api.onrender.com/api/search?movie=${encodeURIComponent(movie)}`);
       const data = await response.json();
 
 
@@ -181,8 +181,7 @@ document.getElementById("searchForm").addEventListener("submit", async function 
   resultsDiv.innerHTML = `<p>🔍 Searching...</p>`;
 
   try {
-    const response = await fetch(`http://localhost:5000/api/search?movie=${encodeURIComponent(movie)}`);
-    const data = await response.json();
+    const response = await fetch(`https://where-to-watch-api.onrender.com/api/search?movie=${encodeURIComponent(movie)}`);
 
     if (!data.suggestions || data.suggestions.length === 0) {
       resultsDiv.innerHTML = `<p style="color:red;">❌ Movie not found.</p>`;
