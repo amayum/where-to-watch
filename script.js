@@ -1,12 +1,14 @@
 const resultsDiv = document.getElementById("results");
 let debounceTimer;
 
+// creates the dropdown element and attach it to the page
 const dropdown = document.createElement("div");
 dropdown.style.cssText = "position:fixed;background:white;border:1px solid #ccc;border-radius:8px;z-index:9999;display:none;box-shadow:0 4px 12px rgba(0,0,0,0.15);overflow:hidden;";
 document.body.appendChild(dropdown);
 
 const movieInput = document.getElementById("movieInput");
 
+// positions the dropdown directly below the search input
 function positionDropdown() {
   const rect = movieInput.getBoundingClientRect();
   dropdown.style.top = (rect.bottom + 4) + "px";
@@ -14,6 +16,8 @@ function positionDropdown() {
   dropdown.style.width = rect.width + "px";
 }
 
+// builds and displays the full movie result including poster, 
+// rating, overview, platforms and recommendations
 function showResults(data, country) {
   dropdown.style.display = "none";
 
@@ -38,6 +42,7 @@ function showResults(data, country) {
     <div style="clear:both;border-top:1px solid #eee;padding-top:12px;">
   `;
 
+  // builds a clickable list of platforms for a given category (stream, rent, buy)
   function createPlatformList(providers, label, icon) {
     if (!providers || providers.length === 0) return '';
     return `
@@ -67,6 +72,7 @@ function showResults(data, country) {
   resultsDiv.style.display = "block";
   resultsDiv.innerHTML = html;
 
+  // fetch similar movies and display them below the results
   fetch(`http://localhost:5000/api/recommendations?id=${data.id}`)
     .then(r => r.json())
     .then(recData => {
@@ -96,6 +102,7 @@ function showResults(data, country) {
     });
 }
 
+// fetches full movie details and streaming info for a selected movie
 async function fetchById(id, title, country) {
   dropdown.style.display = "none";
   movieInput.value = '';
@@ -114,11 +121,13 @@ async function fetchById(id, title, country) {
   }
 }
 
+// watches the search input and triggers a search after the user stops typing for 400ms
 movieInput.addEventListener("input", function () {
   clearTimeout(debounceTimer);
   const movie = this.value.trim();
   const country = document.getElementById("countrySelect").value;
 
+    // only dropdown search displayed if the user has typed at least 3 characters
   if (movie.length < 3) {
     dropdown.style.display = "none";
     return;
@@ -129,6 +138,8 @@ movieInput.addEventListener("input", function () {
       const response = await fetch(`http://localhost:5000/api/search?movie=${encodeURIComponent(movie)}`);
       const data = await response.json();
 
+
+       // show suggestions in the dropdown if results were found
       if (data.suggestions && data.suggestions.length > 0) {
         positionDropdown();
         dropdown.innerHTML = data.suggestions.map(s => `
@@ -149,12 +160,15 @@ movieInput.addEventListener("input", function () {
   }, 400);
 });
 
+
+// closes the dropdown when the user clicks anywhere outside it
 document.addEventListener("click", function (e) {
   if (!movieInput.contains(e.target) && !dropdown.contains(e.target)) {
     dropdown.style.display = "none";
   }
 });
 
+// handles the search button — takes the top suggestion and fetches its full details
 document.getElementById("searchForm").addEventListener("submit", async function (e) {
   e.preventDefault();
   const movie = movieInput.value.trim();
@@ -175,6 +189,7 @@ document.getElementById("searchForm").addEventListener("submit", async function 
       return;
     }
 
+    // pick the top result and load its streaming info
     const top = data.suggestions[0];
     await fetchById(top.id, top.title, country);
 

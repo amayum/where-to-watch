@@ -6,11 +6,14 @@ from dotenv import load_dotenv
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 
+# loading API keys from .env file
 load_dotenv()
 
 app = Flask(__name__)
 CORS(app)
 
+
+# limits each user to 30 requests per minute to prevent abuse
 limiter = Limiter(get_remote_address, app=app, default_limits=["30 per minute"])
 
 API_KEY = os.getenv("TMDB_API_KEY")
@@ -19,8 +22,11 @@ ACCESS_TOKEN = os.getenv("TMDB_ACCESS_TOKEN")
 if not API_KEY or not ACCESS_TOKEN:
     raise Exception("Please set TMDB_API_KEY and TMDB_ACCESS_TOKEN environment variables!")
 
+# simple in-memory cache to avoid repeated calls to TMDB for the same movie
 cache = {}
 
+
+# helper function: formats the raw TMDB provider data into a clean structure for the frontend
 def format_providers(providers):
     return [
         {
@@ -31,7 +37,7 @@ def format_providers(providers):
         for p in providers
     ]
 
-
+# first endpoint: searches TMDB for movies matching the query and returns up to 5 suggestions
 @app.route('/api/search', methods=['GET'])
 @limiter.limit("30 per minute")
 def search_movies():
@@ -67,6 +73,8 @@ def search_movies():
         return jsonify({"error": f"API request failed: {str(e)}"}), 500
 
 
+
+# fetches full movie details and streaming availability for a given movie ID and country
 @app.route('/api/streaming/by-id', methods=['GET'])
 @limiter.limit("30 per minute")
 def streaming_by_id():
@@ -84,6 +92,7 @@ def streaming_by_id():
     headers = {"Authorization": f"Bearer {ACCESS_TOKEN}", "accept": "application/json"}
 
     try:
+        # first API call: get movie details like title, rating, and overview
         details_response = requests.get(
             f"https://api.themoviedb.org/3/movie/{movie_id}",
             headers=headers
@@ -91,6 +100,7 @@ def streaming_by_id():
         details_response.raise_for_status()
         details = details_response.json()
 
+        # second API call: get streaming, rent, and buy availability by country
         providers_response = requests.get(
             f"https://api.themoviedb.org/3/movie/{movie_id}/watch/providers",
             headers=headers
@@ -120,7 +130,7 @@ def streaming_by_id():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-
+# returns up to 6 similar movies based on the given movie ID
 @app.route('/api/recommendations', methods=['GET'])
 @limiter.limit("30 per minute")
 def recommendations():
@@ -155,12 +165,12 @@ def recommendations():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-
+# confirms the API is live
 @app.route('/')
 def home():
     return {"status": "Where to Watch API", "message": "Use /api/search?movie=Joker then /api/streaming/by-id?id=ID&country=US", "health": "/health"}, 200
 
-
+# used by Render to check the server is healthy
 @app.route('/health')
 def health():
     return {"status": "alive"}, 200
